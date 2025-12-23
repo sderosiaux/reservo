@@ -23,16 +23,18 @@ export default function ResourcesPage() {
   // Local UI state
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newResource, setNewResource] = useState({ id: '', type: '', capacity: '' });
+  const [newResource, setNewResource] = useState({ id: '', type: '', capacity: '', unlimited: false });
 
   const error = queryError instanceof Error ? queryError.message : null;
+
+  const UNLIMITED_CAPACITY = 2147483647; // Max int32
 
   async function handleCreateResource() {
     // Validate input with Zod schema
     const validation = validateForm(createResourceSchema, {
       id: newResource.id.trim().toLowerCase(),
       type: newResource.type.trim(),
-      capacity: parseInt(newResource.capacity) || 0,
+      capacity: newResource.unlimited ? UNLIMITED_CAPACITY : (parseInt(newResource.capacity) || 0),
     });
 
     if (!validation.success) {
@@ -49,7 +51,7 @@ export default function ResourcesPage() {
         capacity: validation.data.capacity,
       });
       setShowCreateModal(false);
-      setNewResource({ id: '', type: '', capacity: '' });
+      setNewResource({ id: '', type: '', capacity: '', unlimited: false });
       toast.success('Ressource créée avec succès', {
         description: `${created.id} (${created.type})`,
       });
@@ -183,13 +185,25 @@ export default function ResourcesPage() {
             value={newResource.type}
             onChange={(e) => setNewResource({ ...newResource, type: e.target.value })}
           />
-          <Input
-            label="Capacité"
-            type="number"
-            placeholder="Nombre maximum de réservations"
-            value={newResource.capacity}
-            onChange={(e) => setNewResource({ ...newResource, capacity: e.target.value })}
-          />
+          <div>
+            <Input
+              label="Capacité"
+              type="number"
+              placeholder="Nombre maximum de réservations"
+              value={newResource.capacity}
+              onChange={(e) => setNewResource({ ...newResource, capacity: e.target.value })}
+              disabled={newResource.unlimited}
+            />
+            <label className="flex items-center gap-2 mt-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={newResource.unlimited}
+                onChange={(e) => setNewResource({ ...newResource, unlimited: e.target.checked, capacity: '' })}
+                className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]"
+              />
+              <span className="text-sm text-[var(--text-secondary)]">Capacité illimitée</span>
+            </label>
+          </div>
         </div>
       </Modal>
     </div>

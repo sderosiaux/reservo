@@ -11,8 +11,11 @@ interface ResourceCardProps {
   onClick?: () => void;
 }
 
+const UNLIMITED_THRESHOLD = 1000000000;
+
 export function ResourceCard({ resource, onClick }: ResourceCardProps) {
   const isOpen = resource.state === 'OPEN';
+  const isUnlimited = resource.capacity >= UNLIMITED_THRESHOLD;
 
   return (
     <Link href={`/admin/resources/${resource.id}`}>
@@ -34,10 +37,15 @@ export function ResourceCard({ resource, onClick }: ResourceCardProps) {
           {resource.id}
         </h3>
         <p className="text-xs text-[var(--text-tertiary)] mb-6">
-          Capacité: {resource.capacity} places
+          {isUnlimited ? 'Capacité illimitée' : `Capacité: ${resource.capacity} places`}
         </p>
 
-        <CapacityBar current={resource.currentBookings} total={resource.capacity} />
+        {!isUnlimited && <CapacityBar current={resource.currentBookings} total={resource.capacity} />}
+        {isUnlimited && (
+          <div className="text-xs text-[var(--text-secondary)]">
+            {resource.currentBookings} réservation{resource.currentBookings !== 1 ? 's' : ''}
+          </div>
+        )}
       </Card>
     </Link>
   );

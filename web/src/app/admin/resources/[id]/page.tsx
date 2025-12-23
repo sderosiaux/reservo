@@ -111,6 +111,7 @@ export default function ResourceDetailPage() {
   }
 
   const isOpen = resource.state === 'OPEN';
+  const isUnlimited = resource.capacity >= 1000000000;
 
   return (
     <div>
@@ -159,13 +160,19 @@ export default function ResourceDetailPage() {
                 <div className="text-xs text-[var(--text-tertiary)] mb-1">Capacité</div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-[var(--text-tertiary)]" />
-                  <span className="font-medium">{resource.capacity}</span>
+                  <span className="font-medium">{isUnlimited ? 'Illimitée' : resource.capacity}</span>
                 </div>
               </div>
 
               <div>
                 <div className="text-xs text-[var(--text-tertiary)] mb-2">Utilisation</div>
-                <CapacityBar current={resource.currentBookings} total={resource.capacity} />
+                {isUnlimited ? (
+                  <div className="text-sm text-[var(--text-secondary)]">
+                    {resource.currentBookings} réservation{resource.currentBookings !== 1 ? 's' : ''}
+                  </div>
+                ) : (
+                  <CapacityBar current={resource.currentBookings} total={resource.capacity} />
+                )}
               </div>
 
               <div className="pt-4 border-t border-[var(--border)]">
