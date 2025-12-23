@@ -31,12 +31,8 @@ export function Modal({ open, onClose, title, children, footer, description }: M
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  const handleEscape = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    },
-    [onClose]
-  );
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // Focus trap: keep focus within modal
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -64,22 +60,31 @@ export function Modal({ open, onClose, title, children, footer, description }: M
   }, []);
 
   useEffect(() => {
-    if (open) {
-      // Store currently focused element
-      previousActiveElement.current = document.activeElement as HTMLElement;
+    if (!open) return;
 
-      // Add event listeners
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+    // Store currently focused element
+    previousActiveElement.current = document.activeElement as HTMLElement;
 
-      // Focus the modal
-      setTimeout(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current();
+    };
+
+    // Add event listeners
+    document.addEventListener('keydown', handleEscape);
+    document.body.style.overflow = 'hidden';
+
+    // Focus the first input, or fallback to first focusable
+    setTimeout(() => {
+      const firstInput = modalRef.current?.querySelector<HTMLElement>('input, select, textarea');
+      if (firstInput) {
+        firstInput.focus();
+      } else {
         const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
         firstFocusable?.focus();
-      }, 0);
-    }
+      }
+    }, 0);
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
@@ -90,7 +95,7 @@ export function Modal({ open, onClose, title, children, footer, description }: M
         previousActiveElement.current.focus();
       }
     };
-  }, [open, handleEscape]);
+  }, [open]);
 
   if (!open) return null;
 
