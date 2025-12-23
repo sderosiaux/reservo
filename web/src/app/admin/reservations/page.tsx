@@ -7,8 +7,15 @@ import { ReservationsTable } from '@/components/admin/reservations-table';
 import { cancelReservation, getReservations } from '@/lib/api';
 import type { Reservation } from '@/lib/types';
 
+interface Stats {
+  total: number;
+  confirmed: number;
+  cancelled: number;
+}
+
 export default function ReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [stats, setStats] = useState<Stats>({ total: 0, confirmed: 0, cancelled: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,8 +29,20 @@ export default function ReservationsPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await getReservations();
-      setReservations(data);
+
+      // Fetch all counts in parallel
+      const [allResult, confirmedResult, cancelledResult] = await Promise.all([
+        getReservations({ limit: 100 }),
+        getReservations({ status: 'confirmed', limit: 1 }),
+        getReservations({ status: 'cancelled', limit: 1 }),
+      ]);
+
+      setReservations(allResult.data);
+      setStats({
+        total: allResult.pagination.total,
+        confirmed: confirmedResult.pagination.total,
+        cancelled: cancelledResult.pagination.total,
+      });
     } catch (err) {
       console.error('Failed to load reservations:', err);
       setError('Impossible de charger les réservations');
@@ -55,12 +74,6 @@ export default function ReservationsPage() {
 
     return matchesSearch && matchesStatus;
   });
-
-  const stats = {
-    total: reservations.length,
-    confirmed: reservations.filter((r) => r.status === 'confirmed').length,
-    cancelled: reservations.filter((r) => r.status === 'cancelled').length,
-  };
 
   return (
     <div>

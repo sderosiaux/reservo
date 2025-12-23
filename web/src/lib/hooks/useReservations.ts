@@ -12,7 +12,7 @@ import { resourceKeys } from './useResources';
 export const reservationKeys = {
   all: ['reservations'] as const,
   lists: () => [...reservationKeys.all, 'list'] as const,
-  list: (filters?: { resourceId?: string; status?: string }) =>
+  list: (filters?: { resourceId?: string; status?: string; limit?: number }) =>
     [...reservationKeys.lists(), filters] as const,
   details: () => [...reservationKeys.all, 'detail'] as const,
   detail: (id: string) => [...reservationKeys.details(), id] as const,
@@ -20,11 +20,13 @@ export const reservationKeys = {
 
 /**
  * Fetch reservations with optional filters
+ * Returns just the data array for backwards compatibility
  */
-export function useReservations(filters?: { resourceId?: string; status?: string }) {
+export function useReservations(filters?: { resourceId?: string; status?: string; limit?: number }) {
   return useQuery({
     queryKey: reservationKeys.list(filters),
     queryFn: () => getReservations(filters),
+    select: (result) => result.data,
   });
 }
 

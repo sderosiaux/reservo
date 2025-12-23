@@ -42,7 +42,7 @@ function normalizeTimestamps<T>(obj: T): T {
 }
 
 /**
- * Normalize reservation status to lowercase
+ * Normalize reservation status to lowercase (recursively)
  */
 function normalizeStatus<T>(obj: T): T {
   if (obj === null || obj === undefined) return obj;
@@ -53,8 +53,12 @@ function normalizeStatus<T>(obj: T): T {
   }
 
   const result = { ...obj } as Record<string, unknown>;
-  if ('status' in result && typeof result.status === 'string') {
-    result.status = result.status.toLowerCase();
+  for (const key in result) {
+    if (key === 'status' && typeof result[key] === 'string') {
+      result[key] = (result[key] as string).toLowerCase();
+    } else if (typeof result[key] === 'object') {
+      result[key] = normalizeStatus(result[key]);
+    }
   }
   return result as T;
 }
@@ -147,13 +151,23 @@ export async function cancelReservation(id: string): Promise<Reservation> {
   });
 }
 
-export async function getReservations(filters?: { resourceId?: string; status?: string }): Promise<Reservation[]> {
+export interface ReservationsResult {
+  data: Reservation[];
+  pagination: {
+    limit: number;
+    offset: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
+export async function getReservations(filters?: { resourceId?: string; status?: string; limit?: number }): Promise<ReservationsResult> {
   const params = new URLSearchParams();
   if (filters?.resourceId) params.set('resourceId', filters.resourceId);
   if (filters?.status) params.set('status', filters.status);
+  if (filters?.limit) params.set('limit', filters.limit.toString());
   const queryString = params.toString();
-  const response = await fetchApi<PaginatedResponse<Reservation>>(`/reservations${queryString ? `?${queryString}` : ''}`);
-  return response.data;
+  return fetchApi<ReservationsResult>(`/reservations${queryString ? `?${queryString}` : ''}`);
 }
 
 export async function getResourceReservations(resourceId: string): Promise<Reservation[]> {
