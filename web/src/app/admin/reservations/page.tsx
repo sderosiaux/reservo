@@ -90,18 +90,30 @@ export default function ReservationsPage() {
       <div className="px-8 py-4 border-b border-[var(--border)] bg-[var(--bg-subtle)]">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-display font-medium">{stats.total}</span>
+            {loading ? (
+              <div className="h-7 w-14 bg-[var(--bg-elevated)] rounded animate-pulse" />
+            ) : (
+              <span className="text-2xl font-display font-medium">{stats.total}</span>
+            )}
             <span className="text-sm text-[var(--text-secondary)]">Total</span>
           </div>
           <div className="w-px h-8 bg-[var(--border)]" />
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
-            <span className="text-lg font-medium">{stats.confirmed}</span>
+            {loading ? (
+              <div className="h-6 w-10 bg-[var(--bg-elevated)] rounded animate-pulse" />
+            ) : (
+              <span className="text-lg font-medium">{stats.confirmed}</span>
+            )}
             <span className="text-sm text-[var(--text-secondary)]">Confirmées</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--cancelled)]" />
-            <span className="text-lg font-medium">{stats.cancelled}</span>
+            {loading ? (
+              <div className="h-6 w-10 bg-[var(--bg-elevated)] rounded animate-pulse" />
+            ) : (
+              <span className="text-lg font-medium">{stats.cancelled}</span>
+            )}
             <span className="text-sm text-[var(--text-secondary)]">Annulées</span>
           </div>
         </div>

@@ -3,19 +3,8 @@
 import { useState, useMemo } from 'react';
 import { Search, Filter, Users, Calendar, TrendingUp } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn, formatRelativeTime } from '@/lib/utils';
 import { useClients } from '@/lib/hooks';
-
-function formatRelativeTime(timestamp: number): string {
-  const diff = Date.now() - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 60) return `Il y a ${minutes} min`;
-  if (hours < 24) return `Il y a ${hours}h`;
-  return `Il y a ${days}j`;
-}
 
 export default function ClientsPage() {
   // React Query hook
@@ -69,7 +58,11 @@ export default function ClientsPage() {
               <Users className="w-5 h-5 text-[var(--accent)]" />
             </div>
             <div>
-              <p className="text-2xl font-display font-medium">{stats.total}</p>
+              {loading ? (
+                <div className="h-7 w-12 bg-[var(--bg-subtle)] rounded animate-pulse" />
+              ) : (
+                <p className="text-2xl font-display font-medium">{stats.total}</p>
+              )}
               <p className="text-xs text-[var(--text-tertiary)]">Clients uniques</p>
             </div>
           </div>
@@ -79,7 +72,11 @@ export default function ClientsPage() {
               <TrendingUp className="w-5 h-5 text-[var(--success)]" />
             </div>
             <div>
-              <p className="text-2xl font-display font-medium">{stats.active}</p>
+              {loading ? (
+                <div className="h-7 w-12 bg-[var(--bg-subtle)] rounded animate-pulse" />
+              ) : (
+                <p className="text-2xl font-display font-medium">{stats.active}</p>
+              )}
               <p className="text-xs text-[var(--text-tertiary)]">Clients actifs</p>
             </div>
           </div>
@@ -89,7 +86,11 @@ export default function ClientsPage() {
               <Calendar className="w-5 h-5 text-[var(--warning)]" />
             </div>
             <div>
-              <p className="text-2xl font-display font-medium">{stats.totalReservations}</p>
+              {loading ? (
+                <div className="h-7 w-16 bg-[var(--bg-subtle)] rounded animate-pulse" />
+              ) : (
+                <p className="text-2xl font-display font-medium">{stats.totalReservations}</p>
+              )}
               <p className="text-xs text-[var(--text-tertiary)]">Réservations totales</p>
             </div>
           </div>
