@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: reservo-test-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: reservo
+      POSTGRES_PASSWORD: reservo
+      POSTGRES_DB: reservo_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reservo -d reservo_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s

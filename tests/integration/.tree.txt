@@ -1,0 +1,52 @@
+tests/integration/
+├── setup.ts                          # Database lifecycle (start/stop/migrate/cleanup)
+├── helpers.ts                        # Test utilities and factories
+│
+├── reservation-commit.test.ts        # 🔥 CRITICAL CONCURRENCY TESTS
+│   ├── Basic commit flow (6 tests)
+│   │   ├── ✓ Success when capacity available
+│   │   ├── ✓ Reject when resource full
+│   │   ├── ✓ Reject when resource closed
+│   │   ├── ✓ Server timestamp correctness
+│   │   ├── ✓ Database persistence
+│   │   └── ✓ Update resource bookings
+│   │
+│   ├── Concurrency - CRITICAL (4 tests) 🎯
+│   │   ├── ✓ 100 concurrent → 1 winner (capacity=1)
+│   │   ├── ✓ 100 concurrent → 10 winners (capacity=10)
+│   │   ├── ✓ Data integrity under race conditions
+│   │   └── ✓ Multiple resources handled independently
+│   │
+│   ├── Ordering guarantees (2 tests)
+│   │   ├── ✓ Monotonically increasing timestamps
+│   │   └── ✓ Correct reservation ordering
+│   │
+│   └── Error handling (2 tests)
+│       ├── ✓ Resource not found
+│       └── ✓ Version conflicts
+│
+├── repositories.test.ts              # Repository integration tests
+│   ├── ResourceRepository
+│   │   ├── CRUD operations (3 tests)
+│   │   ├── Row-level locking (2 tests)
+│   │   └── Optimistic locking (3 tests)
+│   │
+│   ├── ReservationRepository
+│   │   ├── CRUD operations (3 tests)
+│   │   ├── Query operations (3 tests)
+│   │   └── Foreign keys (1 test)
+│   │
+│   └── Cross-repository (2 tests)
+│       ├── ✓ Atomic transactions
+│       └── ✓ Rollback on errors
+│
+├── example.test.ts                   # Example/template tests
+│   ├── Using test helpers (5 tests)
+│   └── Testing new features (1 test)
+│
+└── README.md                         # Documentation
+
+scripts/
+└── run-integration-tests.sh          # Complete test orchestration
+
+vitest.config.integration.ts          # Vitest configuration
