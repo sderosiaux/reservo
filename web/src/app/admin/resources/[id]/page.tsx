@@ -2,12 +2,14 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar, Users, Clock, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, Clock, AlertCircle, CheckCircle, XCircle, ExternalLink, Share2 } from 'lucide-react';
 import { Button, Card, CapacityBar } from '@/components/ui';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { useResource, useResourceReservations } from '@/lib/hooks';
 import type { Reservation } from '@/lib/types';
 import { cn, formatDateDetailed, formatRelativeTime } from '@/lib/utils';
+import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function ResourceDetailPage() {
   const params = useParams();
@@ -33,6 +35,21 @@ export default function ResourceDetailPage() {
 
   const loading = resourceLoading || reservationsLoading;
   const error = resourceError instanceof Error ? resourceError.message : null;
+
+  const bookingUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/book/${resourceId}`
+    : `/book/${resourceId}`;
+
+  async function handleShare() {
+    try {
+      await navigator.clipboard.writeText(bookingUrl);
+      toast.success('Lien copié !', {
+        description: 'Le lien de réservation a été copié dans le presse-papier',
+      });
+    } catch {
+      toast.error('Erreur lors de la copie');
+    }
+  }
 
   function handleRetry() {
     refetchResource();
@@ -143,6 +160,18 @@ export default function ResourceDetailPage() {
                 </span>
               </div>
               <h1 className="text-2xl font-display font-medium tracking-tight">{resource.id}</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm" onClick={handleShare}>
+                <Share2 className="w-4 h-4" />
+                Partager
+              </Button>
+              <Link href={`/book/${resourceId}`}>
+                <Button size="sm">
+                  <ExternalLink className="w-4 h-4" />
+                  Réserver
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

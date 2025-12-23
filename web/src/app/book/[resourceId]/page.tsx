@@ -103,17 +103,20 @@ export default function BookingPage() {
         quantity,
       });
 
-      if (response.status === 'CONFIRMED') {
+      if (response.status.toLowerCase() === 'confirmed') {
         setSuccess(response);
         // Refresh availability
         loadResourceData();
       } else {
-        if (response.reason === 'MAINTENANCE_MODE') {
+        const reason = response.reason?.toUpperCase();
+        if (reason === 'MAINTENANCE_MODE') {
           setMaintenanceMode(true);
           setMaintenanceMessage(response.message ?? null);
           setError('Le système est en maintenance. Veuillez réessayer plus tard.');
-        } else if (response.reason === 'CAPACITY_EXCEEDED') {
+        } else if (reason === 'CAPACITY_EXCEEDED' || reason === 'RESOURCE_FULL') {
           setError('Capacité insuffisante. Veuillez réduire le nombre de places.');
+        } else if (reason === 'RESOURCE_CLOSED') {
+          setError('Cette ressource est actuellement fermée.');
         } else {
           setError(`Réservation refusée: ${response.reason || 'Erreur inconnue'}`);
         }
@@ -132,9 +135,12 @@ export default function BookingPage() {
     setError(null);
   }
 
+  const UNLIMITED_THRESHOLD = 1000000000;
+  const isUnlimited = (resource?.capacity ?? 0) >= UNLIMITED_THRESHOLD;
   const remainingCapacity = availability?.remainingCapacity ?? 0;
-  const availabilityStatus =
-    remainingCapacity === 0 ? 'full' : remainingCapacity <= 3 ? 'limited' : 'available';
+  const availabilityStatus = isUnlimited
+    ? 'available'
+    : remainingCapacity === 0 ? 'full' : remainingCapacity <= 3 ? 'limited' : 'available';
 
   if (loading) {
     return (
@@ -192,14 +198,15 @@ export default function BookingPage() {
               </h1>
 
               <p className="text-lg text-[var(--text-secondary)] leading-relaxed mb-8">
-                Salle de réunion moderne équipée pour accueillir jusqu&apos;à {resource?.capacity} personnes.
-                Idéale pour les réunions d&apos;équipe, présentations clients et sessions de brainstorming.
+                {isUnlimited
+                  ? "Salle de réunion moderne avec capacité illimitée. Idéale pour les réunions d'équipe, présentations clients et sessions de brainstorming."
+                  : `Salle de réunion moderne équipée pour accueillir jusqu'à ${resource?.capacity} personnes. Idéale pour les réunions d'équipe, présentations clients et sessions de brainstorming.`}
               </p>
 
               {/* Features */}
               <div className="flex flex-wrap gap-2">
                 {[
-                  { icon: Users, label: `${resource?.capacity} places` },
+                  { icon: Users, label: isUnlimited ? 'Illimité' : `${resource?.capacity} places` },
                   { icon: Monitor, label: 'Écran 65"' },
                   { icon: Wifi, label: 'WiFi' },
                   { icon: Phone, label: 'Visio' },
@@ -260,7 +267,7 @@ export default function BookingPage() {
                     {availabilityStatus === 'full' && 'Complet'}
                   </div>
                   <span data-testid="availability-count" className="text-sm font-mono text-[var(--text-secondary)]">
-                    {remainingCapacity} place{remainingCapacity !== 1 && 's'} restante{remainingCapacity !== 1 && 's'}
+                    {isUnlimited ? 'Capacité illimitée' : `${remainingCapacity} place${remainingCapacity !== 1 ? 's' : ''} restante${remainingCapacity !== 1 ? 's' : ''}`}
                   </span>
                 </div>
 
@@ -311,8 +318,8 @@ export default function BookingPage() {
                           <button
                             data-testid="quantity-increase"
                             type="button"
-                            onClick={() => setQuantity(Math.min(remainingCapacity, quantity + 1))}
-                            disabled={quantity >= remainingCapacity}
+                            onClick={() => setQuantity(isUnlimited ? quantity + 1 : Math.min(remainingCapacity, quantity + 1))}
+                            disabled={!isUnlimited && quantity >= remainingCapacity}
                             className={cn(
                               'w-11 h-11 flex items-center justify-center rounded-lg',
                               'border border-[var(--border)] bg-[var(--bg-subtle)]',
@@ -324,9 +331,11 @@ export default function BookingPage() {
                             <Plus className="w-5 h-5" />
                           </button>
                         </div>
-                        <p className="text-xs text-[var(--text-tertiary)]">
-                          Maximum : {remainingCapacity} places
-                        </p>
+                        {!isUnlimited && (
+                          <p className="text-xs text-[var(--text-tertiary)]">
+                            Maximum : {remainingCapacity} places
+                          </p>
+                        )}
                       </div>
 
                       <Button
