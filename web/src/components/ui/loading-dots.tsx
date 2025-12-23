@@ -12,7 +12,7 @@ export function LoadingDots({ className }: LoadingDotsProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev.length >= 3 ? '.' : prev + '.'));
-    }, 400);
+    }, 100);
     return () => clearInterval(interval);
   }, []);
 

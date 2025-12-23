@@ -5,7 +5,7 @@
  */
 
 const API_BASE = process.env.API_URL || 'http://localhost:3000/api/v1';
-const DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const DURATION_MS = 10 * 60 * 1000; // 10 minutes
 const TARGET_RPS = 10; // requests per second
 const INTERVAL_MS = 1000 / TARGET_RPS; // 100ms between requests
 
