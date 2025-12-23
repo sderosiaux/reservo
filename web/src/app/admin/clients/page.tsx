@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Filter, Users, Calendar, TrendingUp, Loader2 } from 'lucide-react';
-import { Button, Card } from '@/components/ui';
+import { Search, Filter, Users, Calendar, TrendingUp } from 'lucide-react';
+import { Button, Card, LoadingDots } from '@/components/ui';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import { useClients } from '@/lib/hooks';
 
@@ -59,7 +59,7 @@ export default function ClientsPage() {
             </div>
             <div>
               {loading ? (
-                <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
+                <LoadingDots className="text-2xl font-display font-medium text-[var(--text-tertiary)]" />
               ) : (
                 <p className="text-2xl font-display font-medium">{stats.total}</p>
               )}
@@ -73,7 +73,7 @@ export default function ClientsPage() {
             </div>
             <div>
               {loading ? (
-                <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
+                <LoadingDots className="text-2xl font-display font-medium text-[var(--text-tertiary)]" />
               ) : (
                 <p className="text-2xl font-display font-medium">{stats.active}</p>
               )}
@@ -87,7 +87,7 @@ export default function ClientsPage() {
             </div>
             <div>
               {loading ? (
-                <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
+                <LoadingDots className="text-2xl font-display font-medium text-[var(--text-tertiary)]" />
               ) : (
                 <p className="text-2xl font-display font-medium">{stats.totalReservations}</p>
               )}

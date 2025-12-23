@@ -4,3 +4,4 @@ export { Input } from './input';
 export { StatusBadge } from './status-badge';
 export { CapacityBar } from './capacity-bar';
 export { Modal } from './modal';
+export { LoadingDots } from './loading-dots';
