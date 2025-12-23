@@ -27,8 +27,7 @@ export const createResourceSchema = z.object({
   capacity: z
     .number({ error: 'Capacité doit être un nombre' })
     .int({ error: 'Capacité doit être un nombre entier' })
-    .min(1, { error: 'Capacité minimum: 1' })
-    .max(10000, { error: 'Capacité maximum: 10000' }),
+    .min(1, { error: 'Capacité minimum: 1' }),
 });
 
 export type CreateResourceInput = z.infer<typeof createResourceSchema>;
