@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Filter, Download, Calendar } from 'lucide-react';
+import { Search, Filter, Download, Calendar, Loader2 } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 import { ReservationsTable } from '@/components/admin/reservations-table';
 import { cancelReservation, getReservations } from '@/lib/api';
@@ -91,7 +91,7 @@ export default function ReservationsPage() {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
             {loading ? (
-              <div className="h-7 w-14 bg-[var(--bg-elevated)] rounded animate-pulse" />
+              <Loader2 className="w-6 h-6 animate-spin text-[var(--text-tertiary)]" />
             ) : (
               <span className="text-2xl font-display font-medium">{stats.total}</span>
             )}
@@ -101,7 +101,7 @@ export default function ReservationsPage() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
             {loading ? (
-              <div className="h-6 w-10 bg-[var(--bg-elevated)] rounded animate-pulse" />
+              <Loader2 className="w-5 h-5 animate-spin text-[var(--text-tertiary)]" />
             ) : (
               <span className="text-lg font-medium">{stats.confirmed}</span>
             )}
@@ -110,7 +110,7 @@ export default function ReservationsPage() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--cancelled)]" />
             {loading ? (
-              <div className="h-6 w-10 bg-[var(--bg-elevated)] rounded animate-pulse" />
+              <Loader2 className="w-5 h-5 animate-spin text-[var(--text-tertiary)]" />
             ) : (
               <span className="text-lg font-medium">{stats.cancelled}</span>
             )}
